@@ -8,6 +8,16 @@ def Euler(U1, t1, t2, F):
     return U1 + dt*F(U1, t1)
 
 
+def Inverse_Euler(U1, t1, t2, F):
+
+    dt = t2 - t1
+
+    def G(x):
+        return x - U1 - dt*F(x, t2)
+
+    return Newton(G, U1)
+
+
 def RungeKutta4(U1, t1, t2, F):
 
     dt = t2 - t1
@@ -24,6 +34,7 @@ def CrankNicolson(U1, t1, t2, F):
 
     dt = t2 - t1
     a = U1 + dt/2 * F(U1, t1) # Constant term
+
     def G(x):
         return x - a - dt/2 * F(x, t2)
     

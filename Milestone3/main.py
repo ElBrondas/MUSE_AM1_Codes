@@ -5,7 +5,7 @@ Poner API
 from numpy import linspace, concatenate, array
 from numpy.linalg import norm
 from Cauchy import Cauchy_error
-from Temporal_schemes import Euler, CrankNicolson
+from Temporal_schemes import Euler, CrankNicolson, RungeKutta4, Inverse_Euler
 from Convergence_and_Stability import convergence_rate
 import matplotlib.pyplot as plt
 
@@ -38,7 +38,7 @@ def test_Error():
     t = linspace(0, T, N+1)
     q = 1
 
-    U, E = Cauchy_error(F, U0, t, CrankNicolson, q)
+    U, E = Cauchy_error(F, U0, t, Inverse_Euler, q)
 
     # Plot trajectory
     plt.plot(U[:, 0], U[:, 1])  # Column 0 = x, Column 1 = y
@@ -65,7 +65,7 @@ def test_convergence():
     N = 10000
     t = linspace(0, T, N+1)
 
-    logN, logE, q, E = convergence_rate(Euler, Oscilador, U0, t)
+    logN, logE, q, E = convergence_rate(RungeKutta4, Oscilador, U0, t)
 
     print(f"The order of the temporal scheme is: {q}")
 
@@ -79,4 +79,4 @@ def test_convergence():
     plt.show()   
 
 
-test_convergence()
+test_Error()
