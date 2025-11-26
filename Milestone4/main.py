@@ -7,26 +7,8 @@ from numpy.linalg import norm
 from Cauchy import Cauchy_problem, Cauchy_problem_2_steps
 from Temporal_schemes import *
 from Convergence_and_Stability import convergence_rate, stability_region
+from Physics import *
 import matplotlib.pyplot as plt
-
-
-def F(U, t):
-
-    r = U[0:2]
-    rdot = U[2:4]
-
-    return concatenate((rdot, -r/norm(r)**3), axis=None)
-
-
-def Oscilador(U, t):
-    """
-    d2x/dt2 + x = 0
-    """
-
-    x = U[0]
-    xdot = U[1]
-
-    return array((xdot, -x))
 
 
 def test_Cauchy_1_step():
