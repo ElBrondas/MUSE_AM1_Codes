@@ -13,10 +13,10 @@ def derivative(f, x, r, h=1e-7):
 
 def Jacobian(f, x):
 
-    J = zeros((len(x), len(x)))
+    J = zeros((len(x), len(x)), dtype=complex)
 
     for j in range(len(x)):
-        r = zeros((len(x)))
+        r = zeros((len(x)), dtype=complex)
         r[j] = 1
         J[:, j] = derivative(f, x, r)
 
@@ -31,7 +31,7 @@ def Gauss(A, b):
 def Newton(f, x0):
 
     x = x0
-    Dx = 1.0
+    Dx = 1e-3
 
     while norm(Dx) > 1e-10:
         A = Jacobian(f, x)

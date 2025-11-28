@@ -1,66 +1,78 @@
-from numpy import zeros, linspace, arange, log
+from numpy import zeros, linspace, log10, polyfit, array
 from numpy.linalg import norm
 from Cauchy import Cauchy_error
-from scipy.stats import linregress 
+
+
+def refine_mesh(t1):
+    """
+    Ejemplo: t1 = [0, 1, 2] --> t2 = [0, 0.5, 1, 1.5, 2]
+    """
+    N = len(t1) - 1  
+
+    t2 = zeros(2*N+1) 
+    for i in range(0, N): 
+        t2[2*i] = t1[i]
+        t2[2*i+1] = (t1[i] + t1[i+1])/2 
+    
+    t2[2*N] = t1[N]      
+
+    return t2
 
 
 def convergence_rate(Temporal_scheme, F, U0, t):
     
-    N_mesh = arange(10, 3001, 10)    
-    N_meshes = len(N_mesh)
-    N = len(t) - 1
+    N_meshes = 8          
 
-    E = zeros(N_meshes)
+    logN = zeros(N_meshes)
+    logE = zeros(N_meshes) 
 
-    for n in range(N_meshes):
-        t_n = linspace(t[0], t[N], N_mesh[n])
-        # La primera q puede ser cualquiera, despues se recalcula log(E)
-        U1, E_n = Cauchy_error(F, U0, t_n, Temporal_scheme) 
-        E[n] = norm(E_n)
+    t_i = t
+    for i in range(N_meshes):
+        N = len(t_i) - 1
+        U, E = Cauchy_error(F, U0, t_i, Temporal_scheme) # Cualquier q, por defecto q = 1
 
+        logN[i] = log10(N)
+        logE[i] = log10(norm(E[N, :])) # Norma del punto con mas error (el ultimo)
+        
+        # Se refina la malla para la siguiente iteracion
+        t_i = refine_mesh(t_i)       
 
-    logN = log(N_mesh)
-    logE = log(E)
+    y = logE[logE > -12]
+    x = logN[0:len(y)]
+    m, b = polyfit(x, y, 1)    
+    q = -m
 
-    q = abs(linregress(logN, logE).slope)
+    # Se recalcula logE una vez obtenido el orden
+    logE = logE - log10(1 - 1/2**abs(q))   
 
-    for n in range(N_meshes):
-        t_n = linspace(t[0], t[N], N_mesh[n])
-        U1, E_n = Cauchy_error(F, U0, t_n, Temporal_scheme, q)
-        E[n] = norm(E_n)
-
-    logN = log(N_mesh)
-    logE = log(E)
-
-    return logN, logE, q, E
+    return logN, logE, q
 
 
 def stability_region(Temporal_scheme, x0=-4, xf=2, y0=-4, yf=4, Np=100):
     """
-    Ver Calculo Numerico en Ecuaciones Diferenciales Ordinarias, Juan A. Hernandez
+    Ver GitHub de Juan A. Hernandez
+
+    Es valido para todos los esquemas unipaso
     """
 
     x = linspace(x0, xf, Np)
     y = linspace(y0, yf, Np)
     rho = zeros((Np, Np))
 
-    U1 = 1
+    U1 = array([1.0], dtype=complex)    
     t1 = 0
     t2 = 1
 
     for i in range(Np):
         for j in range(Np):
-            w = complex(x[i], y[j])
-
-            # Aplica un paso del esquema al problema test:
-            #   du/dt = λ u ⇒ F(u,t) = w * u   (con Δt = 1 implícito en w)
-            # Para eso, usamos t1=0, t2=1, U1=1 (condición inicial)
+            w = complex(x[i], y[j])           
             
-            def F(u, t):
-                return w*u
-
-            r = Temporal_scheme(U1, t1, t2, F)            
+            def F(U, t): 
+                return w * U
             
-            rho[i,j] = abs(r)
+            # F esta evaluada en U = U1 = 1, por lo que devuelve w 
+            r = Temporal_scheme(U1, t1, t2, F)           
+            
+            rho[i,j] = abs(r[0])
 
     return rho, x, y

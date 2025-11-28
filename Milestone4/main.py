@@ -21,7 +21,7 @@ def test_Cauchy_1_step():
     # Initial conditions
     U0 = ([0, 1])        
 
-    U = Cauchy_problem(Oscilador, U0, t, Inverse_Euler)
+    U = Cauchy_problem(Oscilador, U0, t, LeapFrog(U0, Oscilador))
     
     plt.plot(U[:, 0], U[:, 1]) 
     plt.xlabel('x')
@@ -43,7 +43,7 @@ def test_Cauchy_2_steps():
     U0 = ([0, 1]) 
     U1 = Euler(U0, t[0], t[1], Oscilador)           
 
-    U = Cauchy_problem_2_steps(Oscilador, U0, U1, t, LeapFrog)
+    U = Cauchy_problem_2_steps(Oscilador, U0, U1, t, LeapFrog_v2)
     
     plt.plot(U[:, 0], U[:, 1])  
     plt.xlabel('x')
@@ -55,11 +55,10 @@ def test_Cauchy_2_steps():
 
 
 def test_Stability():
-
-    # No me funciona para Inverse_Euler, CrankNicolson y LeapFrog
+    
     rho, x, y = stability_region(CrankNicolson)    
     
-    plt.contour(x, y, transpose(rho), linspace(0, 1, 11))
+    plt.contour(x, y, transpose(rho), linspace(0, 1, 11)) # Pinto entre rho = [0,1]
     plt.xlabel('Re(w)')
     plt.ylabel('Im(w)')
     plt.axis('equal')
@@ -67,4 +66,6 @@ def test_Stability():
     plt.show()
 
 
+# test_Cauchy_1_step()
+# test_Cauchy_2_steps()
 test_Stability()
