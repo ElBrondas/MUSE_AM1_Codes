@@ -17,18 +17,15 @@ def Initial_Conditions(Nc, Nb):
     U1 = reshape(U0, (Nb, Nc, 2))  
     r0 = reshape(U1[:, :, 0], (Nb, Nc))     
     v0 = reshape(U1[:, :, 1], (Nb, Nc))
-
-    # body 1 
+     
     r0[0,:] = [1, 0, 0]
-    v0[0,:] = [0, 0.4, 0]
-
-    # body 2 
-    v0[1,:] = [0, -0.4, 0] 
+    v0[0,:] = [0, 1, 0]
+         
     r0[1,:] = [-1, 0, 0]
-
-    # body 3 
+    v0[1,:] = [0, -1, 0] 
+     
     r0[2,:] = [0, 1, 0] 
-    v0[2,:] = [-0.4, 0, 0]       
+    v0[2,:] = [-1, 0, 0]       
     
     return U0  
 
@@ -48,9 +45,9 @@ def test_N_Body_Problem():
     # Initial conditions
     U0 = Initial_Conditions(Nb, Nc)       
 
-    U = Cauchy_problem(F, U0, t, CrankNicolson)
-
+    U = Cauchy_problem(F, U0, t, RungeKutta4)
     Us = reshape(U, (N+1, Nb, Nc, 2)) 
+
     r = Us[:, :, :, 0]
     rs = reshape(r, (N+1, Nb, Nc)) 
     
