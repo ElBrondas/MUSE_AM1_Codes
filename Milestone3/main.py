@@ -52,8 +52,7 @@ def test_Error():
     plt.plot(t, E[:, 0])  # Column 0 = x, Column 1 = y
     plt.xlabel('t')
     plt.ylabel('Error')
-    plt.title('Error in the XY plane')
-    plt.axis('equal')
+    plt.title('Error in the XY plane')    
     plt.grid(True)
     plt.show()
 
